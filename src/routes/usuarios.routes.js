@@ -31,7 +31,7 @@ router.post(
     }),
     check("ci").custom(usuarioHelper.ciExiste),
     check("ci").isLength({ min: 10, max: 10 }).isNumeric(),
-    check("roles").custom(roleHelper.rolesSonValidos),
+    check("roles").optional().custom(roleHelper.rolesSonValidos),
     usuarioMiddleware.validarCampos,
   ],
   usuarioController.createUsuario

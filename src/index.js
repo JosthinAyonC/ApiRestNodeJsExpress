@@ -3,7 +3,6 @@ import { sequelize } from './db/database.js';
 
 // import './models/Role.js';
 // import './models/Usuario.js';
-// import './models/UsuarioRole.js';
 
 async function main() {
     
