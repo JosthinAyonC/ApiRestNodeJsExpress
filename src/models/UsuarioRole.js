@@ -1,25 +1,12 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db/database.js'
-import { Usuario } from './Usuario.js';
-import { Role } from './Role.js';
+// import { sequelize } from "../db/database.js";
+// import { Usuario } from "./Usuario.js";
+// import { Role } from "./Role.js";
+// import { DataTypes } from "sequelize";
 
-export const UsuarioRole = sequelize.define('usuario_role',
-    {
-        idUsuario: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: Usuario,
-                key: 'id'
-            }
-        },
-        IdRole: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: Role,
-                key: 'id'
-            }
-        }
-    }
-)
-Role.belongsToMany(Usuario, { through: 'usuario_role' });
-Usuario.belongsToMany(Role, { through: 'usuario_role' });
+// export const UsuarioRole = sequelize.define(
+//   "usuario_role",
+//   {},
+//   { timestamps: false }
+// );
+// Usuario.belongsToMany(Role, { through: UsuarioRole });
+// Role.belongsToMany(Usuario, { through: UsuarioRole });

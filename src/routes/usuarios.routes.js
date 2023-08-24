@@ -1,5 +1,6 @@
 import usuarioController from "../controllers/usuario.controller.js";
 import usuarioHelper from "../middlewares/helper/usuario.helper.js";
+import roleHelper from "../middlewares/helper/role.helper.js";
 import usuarioMiddleware from "../middlewares/usuario.middleware.js";
 import globalMiddleware from "../middlewares/global.middleware.js";
 import { Router } from "express";
@@ -30,6 +31,7 @@ router.post(
     }),
     check("ci").custom(usuarioHelper.ciExiste),
     check("ci").isLength({ min: 10, max: 10 }).isNumeric(),
+    check("roles").custom(roleHelper.rolesSonValidos),
     usuarioMiddleware.validarCampos,
   ],
   usuarioController.createUsuario
@@ -40,6 +42,7 @@ router.put(
   [
     check("username").optional().custom(usuarioHelper.usernameExiste),
     check("email").optional().isEmail().custom(usuarioHelper.emailExiste),
+    check("roles").optional().custom(roleHelper.rolesSonValidos),
     check("password").optional().isLength({ min: 6 }),
     check("ci")
       .optional()
