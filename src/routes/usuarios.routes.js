@@ -14,14 +14,15 @@ router.get("/usuario", [
 ], usuarioController.getAllUsuarios);
 
 router.get("/usuario/:id", [
-  jwtHelper.validarJWT,
-], globalMiddleware.idIsNumber, usuarioController.getUsuarioById);
+  jwtHelper.validarJWT, 
+  globalMiddleware.idIsNumber,
+  globalMiddleware.esAdminRole,
+], usuarioController.getUsuarioById);
 
 router.post(
   "/usuario",
   [
     jwtHelper.validarJWT,
-    globalMiddleware.esAdminRole,
     check("firstname", "El nombre es obligatorio").not().isEmpty(),
     check("lastname", "El apellido es obligatorio").not().isEmpty(),
     check("username", "El nombre de usuario es obligatorio").not().isEmpty(),
@@ -39,6 +40,7 @@ router.post(
     check("ci").custom(usuarioHelper.ciExiste),
     check("ci").isLength({ min: 10, max: 10 }).isNumeric(),
     check("roles").optional().custom(roleHelper.rolesSonValidos),
+    globalMiddleware.esAdminRole,
     globalMiddleware.validarCampos,
   ],
   usuarioController.createUsuario

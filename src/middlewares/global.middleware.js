@@ -21,21 +21,39 @@ const globalMiddleware = {
   },
 
   esAdminRole: (req, res = response, next) => {
-    console.log(req);
     if (!req.usuario) {
       return res.status(500).json({
         msg: 'Se quiere verificar el rol sin verificar el token primero'
-      })
+      });
     }
-    const { rol, nombre } = req.usuario;
-
-    if (rol !== 'ADMIN') {
+    const { roles, firstname } = req.usuario;
+    const isAdmin = roles.some(role => role.name === 'ADMIN');
+    if (!isAdmin) {
       return res.status(401).json({
-        msg: `${nombre}, no tienes permisos necesarios para ejecutar esta funcion`
-      })
+        msg: `${firstname}, no tienes permisos necesarios para ejecutar esta función`
+      });
     }
+
+    next();
+  },
+
+  esModRole: (req, res = response, next) => {
+    if (!req.usuario) {
+      return res.status(500).json({
+        msg: 'Se quiere verificar el rol sin verificar el token primero'
+      });
+    }
+    const { roles, firstname } = req.usuario;
+    const isAdmin = roles.some(role => role.name === 'MODERATOR');
+    if (!isAdmin) {
+      return res.status(401).json({
+        msg: `${firstname}, no tienes permisos necesarios para ejecutar esta función`
+      });
+    }
+
     next();
   }
+
 };
 
 export default globalMiddleware;

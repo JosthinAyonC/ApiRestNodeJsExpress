@@ -1,6 +1,7 @@
 import { Usuario } from "../models/Usuario.js";
 import jwtHelper from "../middlewares/helper/jwt-helper.js";
 import bcryptjs from "bcryptjs";
+import { Role } from "../models/Role.js";
 
 
 const authController = {
@@ -10,7 +11,14 @@ const authController = {
 
         try {
             //Ver si el email existe
-            const usuario = await Usuario.findOne({where: {email}});
+            const usuario = await Usuario.findOne({
+                where: { email }, include: {
+                    model: Role,
+                    through: {
+                        attributes: [],
+                    },
+                },
+            });
             if (!usuario) {
                 return res.status(400).json({
                     msg: 'Correo no registrado'
