@@ -1,5 +1,7 @@
-import { Usuario } from "../models/Usuario";
-import generarJWT from "../middlewares/helper/jwt-generator.js";
+import { Usuario } from "../models/Usuario.js";
+import jwtHelper from "../middlewares/helper/jwt-helper.js";
+import bcryptjs from "bcryptjs";
+
 
 const authController = {
     login: async (req, res = response) => {
@@ -8,14 +10,14 @@ const authController = {
 
         try {
             //Ver si el email existe
-            const usuario = await Usuario.findOne({ email });
+            const usuario = await Usuario.findOne({where: {email}});
             if (!usuario) {
                 return res.status(400).json({
                     msg: 'Correo no registrado'
                 })
             }
             //validar si el usuario esta activo
-            if (!usuario.estado) {
+            if (usuario.estado === "N") {
                 return res.status(400).json({
                     msg: 'Usuario inactivo'
                 })
@@ -28,7 +30,7 @@ const authController = {
                 })
             }
             //Generar el JWT
-            const token = await generarJWT(usuario.id);
+            const token = await jwtHelper.generarJWT(usuario.id);
 
             res.json({
                 usuario,

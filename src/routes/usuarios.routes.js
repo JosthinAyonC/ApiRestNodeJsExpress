@@ -1,19 +1,27 @@
 import usuarioController from "../controllers/usuario.controller.js";
 import usuarioHelper from "../middlewares/helper/usuario.helper.js";
 import roleHelper from "../middlewares/helper/role.helper.js";
+import jwtHelper from "../middlewares/helper/jwt-helper.js";
 import globalMiddleware from "../middlewares/global.middleware.js";
 import { Router } from "express";
 import { check } from "express-validator";
 
 const router = Router();
 
-router.get("/usuario", usuarioController.getAllUsuarios);
+router.get("/usuario", [
+  jwtHelper.validarJWT,
+  globalMiddleware.esAdminRole,
+], usuarioController.getAllUsuarios);
 
-router.get("/usuario/:id", globalMiddleware.idIsNumber, usuarioController.getUsuarioById);
+router.get("/usuario/:id", [
+  jwtHelper.validarJWT,
+], globalMiddleware.idIsNumber, usuarioController.getUsuarioById);
 
 router.post(
   "/usuario",
   [
+    jwtHelper.validarJWT,
+    globalMiddleware.esAdminRole,
     check("firstname", "El nombre es obligatorio").not().isEmpty(),
     check("lastname", "El apellido es obligatorio").not().isEmpty(),
     check("username", "El nombre de usuario es obligatorio").not().isEmpty(),
@@ -39,6 +47,8 @@ router.post(
 router.put(
   "/usuario/:id",
   [
+    jwtHelper.validarJWT,
+    globalMiddleware.esAdminRole,
     check("username").optional().custom(usuarioHelper.usernameExiste),
     check("email").optional().isEmail().custom(usuarioHelper.emailExiste),
     check("roles").optional().custom(roleHelper.rolesSonValidos),
@@ -48,12 +58,15 @@ router.put(
       .isLength({ min: 10, max: 10 })
       .isNumeric()
       .custom(usuarioHelper.ciExiste),
-      globalMiddleware.idIsNumber,
-      globalMiddleware.validarCampos,
+    globalMiddleware.idIsNumber,
+    globalMiddleware.validarCampos,
   ],
   usuarioController.updateUsuario
 );
 
-router.put("/usuario/delete/:id", usuarioController.deleteUsuario);
+router.put("/usuario/delete/:id", [
+  jwtHelper.validarJWT,
+  globalMiddleware.esAdminRole,
+], usuarioController.deleteUsuario);
 
 export default router;
