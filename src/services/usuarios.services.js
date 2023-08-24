@@ -1,3 +1,4 @@
+import bcryptjs from "bcryptjs";
 import { Role } from "../models/Role.js";
 import { Usuario } from "../models/Usuario.js";
 import { Op } from "sequelize";
@@ -5,7 +6,7 @@ import { Op } from "sequelize";
 const usuarioService = {
     getAllUsers: async () => {
         try {
-            const users = await Usuario.findAll({
+            const usuarios = await Usuario.findAll({
                 where: { status: { [Op.ne]: "N" } },
                 include: {
                     model: Role,
@@ -14,16 +15,16 @@ const usuarioService = {
                     },
                 },
             });
-            return users;
+            return usuarios;
         } catch (error) {
             throw new Error(error);
         }
     },
 
-    getByIdUser: async (userId) => {
+    getByIdUser: async (usuarioId) => {
         try {
-            const user = await Usuario.findOne({
-                where: { id: userId },
+            const usuario = await Usuario.findOne({
+                where: { id: usuarioId },
                 include: {
                     model: Role,
                     through: {
@@ -31,9 +32,9 @@ const usuarioService = {
                     },
                 },
             });
-            if (user){
-                return user;
-            }else{
+            if (usuario) {
+                return usuario;
+            } else {
                 return null;
             }
         } catch (error) {
@@ -41,25 +42,28 @@ const usuarioService = {
         }
     },
 
-    createUser: async (userData) => {
+    createUser: async (usuarioData) => {
         try {
             let rolesToAdd = [];
-            if (userData.roles && userData.roles.length > 0) {
+            if (usuarioData.roles && usuarioData.roles.length > 0) {
                 rolesToAdd = await Role.findAll({
-                    where: { name: userData.roles },
+                    where: { name: usuarioData.roles },
                 });
             } else {
                 const defaultRole = await Role.findOne({ where: { name: "USER" } });
                 rolesToAdd.push(defaultRole);
             }
+            //Encriptacion de clave
+            const salt = bcryptjs.genSaltSync();
+            usuarioData.password = bcryptjs.hashSync(usuarioData.password, salt);
+            //Creacion del usuario
+            const createdusuario = await Usuario.create(usuarioData);
+            await createdusuario.addRoles(rolesToAdd);
 
-            const createdUser = await Usuario.create(userData);
-            await createdUser.addRoles(rolesToAdd);
+            const usuarioWithRoles = await usuarioService.getByIdUser(createdusuario.id);
 
-            const userWithRoles = await usuarioService.getByIdUser(createdUser.id);
-
-            if (userWithRoles) {
-                return userWithRoles.toJSON();
+            if (usuarioWithRoles) {
+                return usuarioWithRoles.toJSON();
             } else {
                 return null;
             }
@@ -68,15 +72,12 @@ const usuarioService = {
         }
     },
 
-    updateUser: async (user, id) => {
+    updateUser: async (usuario, id) => {
         try {
-            const updatedUser = await Usuario.update(user, {
-                where: { id },
-                returning: true, // Esto devuelve el registro actualizado
-            });
-            const userUpdate = await usuarioService.getByIdUser(id);
-            if (userUpdate) {
-                return userUpdate.toJSON();
+            await Usuario.update(usuario, { where: { id } });
+            const usuarioUpdate = await usuarioService.getByIdUser(id);
+            if (usuarioUpdate) {
+                return usuarioUpdate.toJSON();
             } else {
                 return null;
             }
@@ -85,14 +86,14 @@ const usuarioService = {
         }
     },
 
-    deleteUsuario: async (userId) => {
+    deleteUser: async (usuarioId) => {
         try {
-            const user = await Usuario.findByPk(userId);
-            if (!user || user.status === "N") {
+            const usuario = await Usuario.findByPk(usuarioId);
+            if (!usuario || usuario.status === "N") {
                 return null;
             } else {
-                await user.update({ status: "N" });
-                return user.toJSON();
+                await usuario.update({ status: "N" });
+                return usuario.toJSON();
             }
         } catch (error) {
             throw new Error(error);

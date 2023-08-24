@@ -1,7 +1,6 @@
 import usuarioController from "../controllers/usuario.controller.js";
 import usuarioHelper from "../middlewares/helper/usuario.helper.js";
 import roleHelper from "../middlewares/helper/role.helper.js";
-import usuarioMiddleware from "../middlewares/usuario.middleware.js";
 import globalMiddleware from "../middlewares/global.middleware.js";
 import { Router } from "express";
 import { check } from "express-validator";
@@ -32,7 +31,7 @@ router.post(
     check("ci").custom(usuarioHelper.ciExiste),
     check("ci").isLength({ min: 10, max: 10 }).isNumeric(),
     check("roles").optional().custom(roleHelper.rolesSonValidos),
-    usuarioMiddleware.validarCampos,
+    globalMiddleware.validarCampos,
   ],
   usuarioController.createUsuario
 );
@@ -50,7 +49,7 @@ router.put(
       .isNumeric()
       .custom(usuarioHelper.ciExiste),
       globalMiddleware.idIsNumber,
-      usuarioMiddleware.validarCampos,
+      globalMiddleware.validarCampos,
   ],
   usuarioController.updateUsuario
 );
