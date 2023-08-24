@@ -23,6 +23,7 @@ const usuarioService = {
 
     createUser: async (userData) => {
         try {
+            console.log(userData);
             const createdUser = await Usuario.create(userData);
             console.log('Usuario guardado:', createdUser.toJSON());
             return createdUser.toJSON();
@@ -54,7 +55,7 @@ const usuarioService = {
             if (!user || user.status === 'N') {
                 return null;
             }else{
-                await user.update({ status: 'N' }); // Marcar el usuario como 'N'
+                await user.update({ status: 'N' }); 
                 return user.toJSON();
             }
         } catch (error) {

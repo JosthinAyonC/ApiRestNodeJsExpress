@@ -9,7 +9,7 @@ async function main() {
     
     try {
         // Conexion con la base de datos
-        await sequelize.sync();
+        await sequelize.sync({force: false});
         console.log('Database connected');
 
         // Levantamiento del servidor
